@@ -21,6 +21,10 @@ useHead({
 	}]
 });
 
+onMounted(async () => {
+	await todoStore.fetchTodos();
+})
+
 </script>
 
 <style lang="css"></style>

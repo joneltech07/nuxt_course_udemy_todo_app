@@ -16,11 +16,11 @@ const todo = ref({
 
 onMounted(() => {
 	const todoStore = useTodoStore();
-	const { getTodoById } = storeToRefs(todoStore);
+	const { todos } = storeToRefs(todoStore);
 
 	if (isEdit.value) {
-		const todoId  = Number(route.params.type);
-		const existingTodo = getTodoById.value(todoId);
+		const todoId = Number(route.params.type);
+		const existingTodo = todos.value.find(t => t.id === todoId);
 		if (existingTodo) {
 			todo.value = { ...existingTodo };
 		}
@@ -28,6 +28,4 @@ onMounted(() => {
 });
 </script>
 
-<style lang="css">
-	
-</style>
+<style lang="css"></style>

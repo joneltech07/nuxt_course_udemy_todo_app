@@ -1,61 +1,114 @@
-import SecureLS from "secure-ls";
+export const useTodoStore = defineStore("todo", {
+  state: () => ({
+    todos: [] as Array<{
+      id: number;
+      title: string;
+      description: string;
+      isCompleted: boolean;
+      createdAt: string;
+    }>,
+  }),
 
-export const useTodoStore = defineStore('todo', {
-	state: () => ({
-		todos: [] as Array<{
-			id: number;
-			title: string;
-			description: string;
-			isCompleted: boolean,
-			createdAt: string
-		}>,
-	}),
+  actions: {
+    async fetchTodos() {
+      try {
+        const { data, error } = await useFetch("/api/todos");
 
-	getters: {
-		getTodoById: (state) => {
-			return (id: number) => state.todos.find((todo) => todo.id === id);
-		},
-	},
+        if (error.value) {
+          throw new Error("Failed to fetch todos");
+        }
 
-	actions: {
-		addTodo(todo: { id: number; title: string; description: string; isCompleted: boolean, createdAt: string }) {
-			this.todos.push(todo);
-		},
+        if (data.value) {
+          this.todos = data?.value.data;
+        }
+      } catch (error) {
+        //
+        console.error("Failed to Fetch todos", error);
+      }
+    },
 
-		updateTodo(updatedTodo: { id: number; title: string; description: string; isCompleted: boolean, createdAt: string }) {
-			const index = this.todos.findIndex((todo) => todo.id === updatedTodo.id);
-			if (index !== -1) {
-				this.todos[index] = updatedTodo;
-			}
-		},
+    async addTodo(todo: {
+      id: number;
+      title: string;
+      description: string;
+      isCompleted: boolean;
+      createdAt: string;
+    }) {
+      try {
+        const { data, error } = await useFetch("/api/todos", {
+          method: "POST",
+          body: todo,
+        });
 
-		deleteTodo(id: number) {
-			this.todos = this.todos.filter((todo) => todo.id !== id);
-		},
+        if (error.value) {
+          throw new Error("Failed to add todos");
+        }
 
-		updateMarkCompletedStatus(id: number) {
-			const todo = this.todos.find((todo) => todo.id === id);
+        if (data.value) {
+          this.todos.push(data?.value.data);
+        }
+      } catch (error) {
+        //
+        console.error("Failed to add todos", error);
+      }
+    },
 
-			if (todo) {
-				todo.isCompleted = !todo.isCompleted;
-			}
-		},
-	},
+    async updateTodo(updatedTodo: {
+      id: number;
+      title: string;
+      description: string;
+      isCompleted: boolean;
+      createdAt: string;
+    }) {
+      try {
+        const { data, error } = await useFetch("/api/todos", {
+          method: "PUT",
+          body: updatedTodo,
+        });
+        if (error.value) {
+          throw new Error("Failed to update todos");
+        }
+      } catch (error) {
+        console.error("Failed to update todos", error);
+      }
+    },
 
-	persist: {
-		storage: {
-			getItem: (key: string) => {
-				return new SecureLS({
-					encodingType: 'aes',
-					encryptionSecret: '@abc12345nuxtjscourse'
-				}).get(key);
-			},
-			setItem: (key: string, value: string) => {
-				return new SecureLS({
-					encodingType: 'aes',
-					encryptionSecret: '@abc12345nuxtjscourse'
-				}).set(key, value);
-			},
-		}
-	}
+    async deleteTodo(id: number) {
+      try {
+        const { data, error } = await useFetch("/api/todos", {
+          method: "DELETE",
+          body: { id },
+        });
+        if (error.value) {
+          throw new Error("Failed to delete todos");
+        }
+      } catch (error) {
+        console.error("Failed to delete todos", error);
+      }
+    },
+
+    async updateMarkCompletedStatus(id: number) {
+      const todo = this.todos.find((todo) => todo.id === id);
+
+      if (!todo) return;
+
+      const updatedTodo = { ...todo, isCompleted: !todo.isCompleted };
+
+      try {
+        const { data, error } = await useFetch("/api/todos", {
+          method: "PUT",
+          body: updatedTodo,
+        });
+        if (error.value) {
+          throw new Error("Failed to update todos");
+        }
+      } catch (error) {
+        console.error("Failed to update todos", error);
+      }
+
+      if (todo) {
+        todo.isCompleted = !todo.isCompleted;
+      }
+    },
+  },
 });

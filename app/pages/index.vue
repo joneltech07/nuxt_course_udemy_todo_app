@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<Banner />
-		
+
 		<br>
 
 		<TodoList :todos="recentTodos" />
@@ -9,14 +9,16 @@
 	</div>
 </template>
 <script setup lang="ts">
-	const todoStore = useTodoStore();
-	const {todos} = storeToRefs(todoStore);
+const todoStore = useTodoStore();
+const { todos } = storeToRefs(todoStore);
 
-	const recentTodos = computed(() => {
-		return todos.value.slice(-3).reverse();
-	});
+const recentTodos = computed(() => {
+	return todos?.value?.slice(-3)?.reverse();
+});
+
+onMounted(async () => {
+	await todoStore.fetchTodos();
+})
 
 </script>
-<style lang="css">
-	
-</style>
+<style lang="css"></style>
