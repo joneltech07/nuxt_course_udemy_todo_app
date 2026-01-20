@@ -20,6 +20,11 @@
 </template>
 
 <script setup lang="ts">
+	useSeoMeta({
+		title: 'Nuxt - Todo Details',
+		description: 'Nuxt Todo App - Details Page'
+	});
+
 	const route = useRoute();
 
 	const todoStore = useTodoStore();
